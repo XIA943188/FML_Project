@@ -3,6 +3,9 @@
 import numpy as np
 import xlrd
 from sklearn.preprocessing import scale
+import matplotlib.pyplot as plt
+from sklearn.cluster import SpectralClustering
+from sklearn.metrics import silhouette_score
 
 
 def get_data(filename):
@@ -60,33 +63,34 @@ def get_target_labels(X, y, n_label):
     return target_labels
 
 
-"""
-# 可视化数据
+if __name__ == "__main__":
+    # 可视化数据
 
-X_cluster, X_classifier = get_data('大盘数据.xlsx')
-X0, X1 = [], []
-for i in range(len(X_cluster)):
-    X0.append(X_cluster[i][0])
-    X1.append(X_cluster[i][1])
-plt.figure()
-plt.scatter(X0[:], X1[:])
-plt.xlabel('Change of Index')
-plt.ylabel('Ratio of Stocks Rising and Falling')
+    X_cluster, X_classifier = get_data('大盘数据.xlsx')
+    X0, X1 = [], []
+    for i in range(len(X_cluster)):
+        X0.append(X_cluster[i][0])
+        X1.append(X_cluster[i][1])
+    plt.figure()
+    plt.scatter(X0[:], X1[:])
+    plt.xlabel('Change of Index')
+    plt.ylabel('Ratio of Stocks Rising and Falling')
 
-# 最优聚类方式
-plt.figure(figsize=(8, 2))
-algorithms = [('K = '+str(n_clusters), SpectralClustering(n_clusters=n_clusters, affinity='nearest_neighbors', gamma=10)) for n_clusters in range(2, 6)]
-plot_num = 1
-for name, algorithm in algorithms:
-    algorithm.fit(X_cluster)
-    y_pred = algorithm.labels_.astype(np.int)
-    score = silhouette_score(X_cluster, y_pred)
-    plt.subplot(1, len(algorithms), plot_num)
-    plt.title(name)
-    plt.scatter(X0[:], X1[:], c=y_pred)
-    plt.text(.99, .01, ('score: %.2f' % score).lstrip('0'), transform=plt.gca().transAxes, size=15,
-             horizontalalignment='right')
-    plot_num += 1
-plt.show()
-"""
+    # 最优聚类方式
+    plt.figure(figsize=(8, 2))
+    algorithms = [
+        ('K = ' + str(n_clusters), SpectralClustering(n_clusters=n_clusters, affinity='nearest_neighbors', gamma=10))
+        for n_clusters in range(2, 6)]
+    plot_num = 1
+    for name, algorithm in algorithms:
+        algorithm.fit(X_cluster)
+        y_pred = algorithm.labels_.astype(np.int)
+        score = silhouette_score(X_cluster, y_pred)
+        plt.subplot(1, len(algorithms), plot_num)
+        plt.title(name)
+        plt.scatter(X0[:], X1[:], c=y_pred)
+        plt.text(.99, .01, ('score: %.2f' % score).lstrip('0'), transform=plt.gca().transAxes, size=15,
+                 horizontalalignment='right')
+        plot_num += 1
+    plt.show()
 
