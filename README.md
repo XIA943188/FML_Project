@@ -1,5 +1,5 @@
 # FML_Project
-This is the FINAL project of the Fundamental Machine Learning course in 2019.
+This is the FINAL project of the Fundamental Machine Learning course in 2019, which is an implementation of a paper, with all codes and other files written by our group members independently.
 
 ## Introduction
 The codes are divided into two parts, i.e., data processing and vote classification. By this project, you can
