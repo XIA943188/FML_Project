@@ -9,13 +9,19 @@ from data_processing import *
 
 
 class VoteClassifier:
+    """
+    knn_n_neighbors: hyperparameter n_neighbors in KNeighborsClassifier,
+    gb_n_estimators: hyperparameter n_estimators in GradientBoostingClassifier,
+    rf_n_estimators: hyperparameter n_estimators in RandomForestClassifier,
+    rf_oob_score: hyperparameter oob_score in RandomForestClassifier.
+    """
     def __init__(self, knn_n_neighbors=5, gb_n_estimators=400, rf_n_estimators='warn', rf_oob_score=False):
         self.algorithms = [
             (KNeighborsClassifier(n_neighbors=knn_n_neighbors), 1.),
             (GradientBoostingClassifier(n_estimators=gb_n_estimators, random_state=10), 10.),
             (RandomForestClassifier(n_estimators=rf_n_estimators, oob_score=rf_oob_score, random_state=13), 1.)]
-        self.weights = []
-        self.labels = []
+        self.weights = []  # weights of the three base models
+        self.labels = []  # labels it will distinguish
 
     def weighted_voting(self, y_preds, weights):
         y_pred = []
@@ -39,36 +45,39 @@ class VoteClassifier:
             y_pred = algorithm.predict(X)
             y_preds.append(y_pred)
             weights.append(accuracy_calc(y, y_pred) * weight)
-        y_vote = [max_count([y_pred[i] for y_pred in y_preds]) for i in range(len(X))]
+        y_vote = [max_count([y_pred[i] for y_pred in y_preds]) for i in range(len(X))]  # majority voting
         y_preds.append(y_vote)
         weights.append(accuracy_calc(y, y_vote))
         tot_weight = 0.
         for weight in weights:
             tot_weight += weight
-        self.weights = [weight/tot_weight for weight in weights]
+        self.weights = [weight/tot_weight for weight in weights]  # normalize the weights
 
     def predict(self, X):
         y_preds = [algorithm.predict(X) for algorithm, weight in self.algorithms]
         y_vote = [max_count([y_pred[i] for y_pred in y_preds]) for i in range(len(X))]
         y_preds.append(y_vote)
-        y = self.weighted_voting(y_preds, self.weights)
+        y = self.weighted_voting(y_preds, self.weights)  # do the weighted voting
         return y
 
 
 class Classifier:
+    """
+    n_labels: set to 4 for best cluster performance
+    """
     def __init__(self, n_label=4):
         self.n_label = n_label
         self.cluster = SpectralClustering(n_clusters=self.n_label, affinity='nearest_neighbors', gamma=10)
         self.labels = []
         self.target_labels = []
 
-        for label1 in range(n_label):
+        for label1 in range(n_label):  # get all possible combinations of the 4 labels
             for label2 in range(n_label):
                 if label1 < label2:
                     self.labels.append((label1, label2))
 
         self.voters = {label: VoteClassifier() for label in self.labels}
-        self.compare = [KNeighborsClassifier(), GradientBoostingClassifier(), RandomForestClassifier()]
+        self.compare = [KNeighborsClassifier(), GradientBoostingClassifier(), RandomForestClassifier()]  # baseline
         print("Initialization of the model completed.")
 
     def fit(self, X_cluster, X_classifier, ratio=.2):
@@ -97,6 +106,7 @@ class Classifier:
         y_pred = [max_count([y[i] for y in predictions]) for i in range(len(X_test))]
         y_pred_compare = [algorithm.predict(X_test) for algorithm in self.compare]
         print("Target label: ", self.target_labels)
+
         compare, target_compare = [0, 0, 0], [0, 0, 0]
         count, target_count, tot, target_tot = 0, 0, len(X_test), 0
         for i in range(tot):
