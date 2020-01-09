@@ -20,11 +20,13 @@ def get_data(filename):
     return X_cluster, X_classifier
 
 
+# simply split from the interior rather than split randomly
 def divide_data(X, y, ratio):
     size = int(ratio * len(X))
     return X[:size], X[size:], y[:size], y[size:]
 
 
+# choose all data with the needed label
 def choose_label(X, y, label):
     X_, y_ = [], []
     for i in range(len(X)):
@@ -35,6 +37,7 @@ def choose_label(X, y, label):
     return X_, y_
 
 
+# get all possible combinations
 def separate(X, y):
     labels = set(y)
     classes = {label: choose_label(X, y, label) for label in labels}
@@ -49,18 +52,28 @@ def separate(X, y):
     return datas
 
 
+# majority voting
 def max_count(array):
     return max(array, key=array.count)
 
 
+# calculate the target labels from the clusters, i.e., clusters with max and min ratio between rise and fall
 def get_target_labels(X, y, n_label):
     datas = [choose_label(X, y, i) for i in range(n_label)]
     X_ = [(d[1][0], [x[1] for x in d[0]]) for d in datas]
     averages = [(np.mean(x[1]), x[0]) for x in X_]
     target_labels = [min(averages, key=lambda x: x[0])[1], max(averages, key=lambda x: x[0])[1]]
-    print(target_labels)
     target_labels.sort()
     return target_labels
+
+
+def accuracy_calc(y, y_pred):
+    tot = len(y)
+    count = 0
+    for i in range(tot):
+        if y[i] == y_pred[i]:
+            count += 1
+    return count / tot
 
 
 if __name__ == "__main__":
@@ -93,4 +106,3 @@ if __name__ == "__main__":
                  horizontalalignment='right')
         plot_num += 1
     plt.show()
-
