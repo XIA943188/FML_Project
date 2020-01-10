@@ -2,7 +2,7 @@
 This is the FINAL project of the Fundamental Machine Learning course in 2019, which is an implementation of a paper, with all codes and other files written by our group members independently.
 
 ## Introduction
-The codes are divided into two parts, i.e., data processing and vote classification. By this project, you can
+The codes are divided into two parts, i.e., [data processing](./data_processing.py) and [vote classification](./vote_classifier.py). By this project, you can
 
 - visualize the data and the cluster results by running data_processing.py
 - get the prediction result of the vote model and the final accuracy by running vote_classifier.py
@@ -42,3 +42,7 @@ The class consists of distinct `VoteClassifier`'s for each group, you can set th
 Since we here need to cluster the data during fitting the model, we also put the data splitting into the fitting process, so the input of `fit(self, X_cluster, X_classifier, ratio=.2)` will not only contain the data for training, but also the data for clustering and the split ratio. It will return the test data for validation.
 
 Similarly, we need to calculate all related accuracy so we put these calculation into the predicting process in order to avoid some troubles, and the input of `predict(self, X_test, y_test)` will also contain the correct labels. However, it will still output the prediction result, as all the models will do.
+
+## Results
+
+For detailed results, please check the final [project report](./report.pdf).
